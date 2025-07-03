@@ -14,7 +14,11 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background: linear-gradient(135deg, #176429 60%, #1e3a01 100%);
+  /* Example: add a background image (replace URL with your own image if desired) */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -22,6 +26,7 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  box-shadow: 0 0 40px #0008 inset;
 }
 
 .App-link {
