@@ -8,11 +8,25 @@ function App() {
   const [activeMoles, setActiveMoles] = useState([]);
   const [molePositions, setMolePositions] = useState({});
   const [gameStarted, setGameStarted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30); // 30 seconds
+  const [gameOver, setGameOver] = useState(false);
 
+  // Game timer
   useEffect(() => {
-    if (!gameStarted) return;
+    if (!gameStarted || gameOver) return;
+    if (timeLeft <= 0) {
+      setGameOver(true);
+      setActiveMoles([]);
+      return;
+    }
+    const timer = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [gameStarted, timeLeft, gameOver]);
+
+  // Mole logic
+  useEffect(() => {
+    if (!gameStarted || gameOver) return;
     const interval = setInterval(() => {
-      // Pick a random number of moles to show (1 to moleCount)
       const visibleMoleCount = Math.floor(Math.random() * moleCount) + 1;
       const indices = [];
       while (indices.length < visibleMoleCount) {
@@ -21,25 +35,31 @@ function App() {
           indices.push(idx);
         }
       }
-      // Assign random positions for each active mole
       const newPositions = {};
       indices.forEach(idx => {
         newPositions[idx] = {
-          top: Math.random() * 80 + 10,   // 10% to 90% vertically
-          left: Math.random() * 80 + 10,  // 10% to 90% horizontally
+          top: Math.random() * 80 + 10,
+          left: Math.random() * 80 + 10,
         };
       });
       setActiveMoles(indices);
       setMolePositions(newPositions);
     }, 1000);
     return () => clearInterval(interval);
-  }, [gameStarted]);
+  }, [gameStarted, gameOver]);
 
   const handleMoleClick = (idx) => {
     if (activeMoles.includes(idx)) {
       setScore((s) => s + 1);
       setActiveMoles((moles) => moles.filter((m) => m !== idx));
     }
+  };
+
+  const handleStart = () => {
+    setScore(0);
+    setTimeLeft(30);
+    setGameOver(false);
+    setGameStarted(true);
   };
 
   if (!gameStarted) {
@@ -59,9 +79,35 @@ function App() {
             color: "#222",
             fontWeight: "bold"
           }}
-          onClick={() => setGameStarted(true)}
+          onClick={handleStart}
         >
           Start Game
+        </button>
+      </div>
+    );
+  }
+
+  if (gameOver) {
+    // GAME OVER PAGE
+    return (
+      <div className="App-header" style={{ justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <h1>Time's Up!</h1>
+        <h2>Your Score: {score}</h2>
+        <button
+          style={{
+            fontSize: "2rem",
+            padding: "1rem 2rem",
+            marginTop: "2rem",
+            cursor: "pointer",
+            borderRadius: "10px",
+            border: "none",
+            background: "#61dafb",
+            color: "#222",
+            fontWeight: "bold"
+          }}
+          onClick={handleStart}
+        >
+          Play Again
         </button>
       </div>
     );
@@ -71,6 +117,17 @@ function App() {
   return (
     <div className="App-header" style={{ position: "relative", minHeight: "100vh" }}>
       <div className="score-top-right">Score: {score}</div>
+      <div style={{
+        position: "absolute",
+        top: 20,
+        left: 40,
+        fontSize: "2rem",
+        fontWeight: "bold",
+        color: "white",
+        zIndex: 10
+      }}>
+        Time: {timeLeft}
+      </div>
       {Array.from({ length: moleCount }).map((_, idx) => (
         <button
           key={idx}
