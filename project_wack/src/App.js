@@ -34,8 +34,8 @@ function App() {
   };
 
   return (
-    <div className="App-header">
-      <h2>Score: {score}</h2>
+    <div className="App-header" style={{ position: "relative" }}>
+      <div className="score-top-right">Score: {score}</div>
       <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
         {Array.from({ length: moleCount }).map((_, idx) => (
           <button
