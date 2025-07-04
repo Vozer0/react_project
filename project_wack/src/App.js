@@ -1,39 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import moleImg from "./mole.png";
 import "./App.css";
 
 function App() {
-  const [visible, setVisible] = useState(true);
+  const moleCount = 6;
   const [score, setScore] = useState(0);
+  const [activeMoles, setActiveMoles] = useState([]);
 
-  const toggleMole = () => setVisible((v) => !v);
-  const handleMoleClick = () => setScore((s) => s + 1);
+  // Number of moles to show at once
+  const visibleMoleCount = 2;
 
-  // Create an array for multiple mole buttons
-  const moleButtons = Array.from({ length: 6 });
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Pick unique random indices for visible moles
+      const indices = [];
+      while (indices.length < visibleMoleCount) {
+        const idx = Math.floor(Math.random() * moleCount);
+        if (!indices.includes(idx)) {
+          indices.push(idx);
+        }
+      }
+      setActiveMoles(indices);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleMoleClick = (idx) => {
+    if (activeMoles.includes(idx)) {
+      setScore((s) => s + 1);
+      // Remove the clicked mole from active moles
+      setActiveMoles((moles) => moles.filter((m) => m !== idx));
+    }
+  };
 
   return (
     <div className="App-header">
       <h2>Score: {score}</h2>
       <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
-        {visible &&
-          moleButtons.map((_, idx) => (
-            <button
-              key={idx}
-              style={{
-                background: "none",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-              }}
-              onClick={handleMoleClick}
-            >
-              <img src={moleImg} alt="Mole" style={{ width: 100, height: 100 }} />
-            </button>
-          ))}
+        {Array.from({ length: moleCount }).map((_, idx) => (
+          <button
+            key={idx}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: activeMoles.includes(idx) ? "pointer" : "default",
+              visibility: activeMoles.includes(idx) ? "visible" : "hidden",
+            }}
+            onClick={() => handleMoleClick(idx)}
+            disabled={!activeMoles.includes(idx)}
+          >
+            <img src={moleImg} alt="Mole" style={{ width: 100, height: 100 }} />
+          </button>
+        ))}
       </div>
-      <br />
-      <button onClick={toggleMole}>Show/Hide Moles</button>
     </div>
   );
 }
