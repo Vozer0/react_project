@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import moleImg from "./mole.png";
+import goldenMoleImg from "./golden_mole.png";
 import "./App.css";
 
 // Title function for milestones
 function getTitle(score) {
   if (score >= 40) return "The Verminator";
-  if (score >= 30) return "Best Exterminator in town";
-  if (score >= 20) return "Exterminator in training";
+  if (score >= 30) return "Best exterminator in town";
+  if (score >= 20) return "You've got a fridge \"magnet\"";
   return "";
 }
 
@@ -19,12 +20,18 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(30); // 30 seconds
   const [gameOver, setGameOver] = useState(false);
 
+  // Golden mole state
+  const [goldenMoleVisible, setGoldenMoleVisible] = useState(false);
+  const [goldenMoleHit, setGoldenMoleHit] = useState(false);
+  const [goldenMolePosition, setGoldenMolePosition] = useState({ top: 50, left: 50 });
+
   // Game timer
   useEffect(() => {
     if (!gameStarted || gameOver) return;
     if (timeLeft <= 0) {
       setGameOver(true);
       setActiveMoles([]);
+      setGoldenMoleVisible(false);
       return;
     }
     const timer = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
@@ -56,6 +63,31 @@ function App() {
     return () => clearInterval(interval);
   }, [gameStarted, gameOver]);
 
+  // Golden mole logic: appears once per game, for a short time, at a random interval
+  useEffect(() => {
+    if (!gameStarted || goldenMoleHit) return;
+    // Golden mole appears at a random time between 5 and 20 seconds
+    const appearTime = Math.random() * 15000 + 5000;
+    let appearTimer, disappearTimer;
+
+    appearTimer = setTimeout(() => {
+      setGoldenMoleVisible(true);
+      setGoldenMolePosition({
+        top: Math.random() * 80 + 10,
+        left: Math.random() * 80 + 10,
+      });
+      // Golden mole disappears after 1 second if not hit
+      disappearTimer = setTimeout(() => {
+        setGoldenMoleVisible(false);
+      }, 1000);
+    }, appearTime);
+
+    return () => {
+      clearTimeout(appearTimer);
+      clearTimeout(disappearTimer);
+    };
+  }, [gameStarted, goldenMoleHit]);
+
   const handleMoleClick = (idx) => {
     if (activeMoles.includes(idx)) {
       setScore((s) => s + 1);
@@ -63,11 +95,19 @@ function App() {
     }
   };
 
+  const handleGoldenMoleClick = () => {
+    setScore((s) => s + 10);
+    setGoldenMoleVisible(false);
+    setGoldenMoleHit(true);
+  };
+
   const handleStart = () => {
     setScore(0);
     setTimeLeft(30);
     setGameOver(false);
     setGameStarted(true);
+    setGoldenMoleVisible(false);
+    setGoldenMoleHit(false);
   };
 
   if (!gameStarted) {
@@ -137,6 +177,26 @@ function App() {
       }}>
         Time: {timeLeft}
       </div>
+      {/* Golden Mole */}
+      {goldenMoleVisible && !goldenMoleHit && (
+        <button
+          style={{
+            position: "absolute",
+            top: `${goldenMolePosition.top}%`,
+            left: `${goldenMolePosition.left}%`,
+            transform: "translate(-50%, -50%)",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            zIndex: 20,
+          }}
+          onClick={handleGoldenMoleClick}
+        >
+          <img src={goldenMoleImg} alt="Golden Mole" style={{ width: 100, height: 100 }} />
+        </button>
+      )}
+      {/* Regular Moles */}
       {Array.from({ length: moleCount }).map((_, idx) => (
         <button
           key={idx}
