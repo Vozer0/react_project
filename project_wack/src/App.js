@@ -7,9 +7,11 @@ function App() {
   const [score, setScore] = useState(0);
   const [activeMoles, setActiveMoles] = useState([]);
   const [molePositions, setMolePositions] = useState({});
+  const [gameStarted, setGameStarted] = useState(false); // NEW
   const visibleMoleCount = 2;
 
   useEffect(() => {
+    if (!gameStarted) return; // Only run game loop if started
     const interval = setInterval(() => {
       const indices = [];
       while (indices.length < visibleMoleCount) {
@@ -30,7 +32,7 @@ function App() {
       setMolePositions(newPositions);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [gameStarted]); // Depend on gameStarted
 
   const handleMoleClick = (idx) => {
     if (activeMoles.includes(idx)) {
@@ -39,6 +41,32 @@ function App() {
     }
   };
 
+  if (!gameStarted) {
+    // COVER PAGE
+    return (
+      <div className="App-header" style={{ justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <h1>WACK-A-MOLE!</h1>
+        <button
+          style={{
+            fontSize: "2rem",
+            padding: "1rem 2rem",
+            marginTop: "2rem",
+            cursor: "pointer",
+            borderRadius: "10px",
+            border: "none",
+            background: "#61dafb",
+            color: "#222",
+            fontWeight: "bold"
+          }}
+          onClick={() => setGameStarted(true)}
+        >
+          Start Game
+        </button>
+      </div>
+    );
+  }
+
+  // GAME PAGE
   return (
     <div className="App-header" style={{ position: "relative", minHeight: "100vh" }}>
       <div className="score-top-right">Score: {score}</div>
