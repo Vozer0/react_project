@@ -2,6 +2,14 @@ import React, { useState, useEffect } from "react";
 import moleImg from "./mole.png";
 import "./App.css";
 
+// Title function for milestones
+function getTitle(score) {
+  if (score >= 40) return "The Verminator";
+  if (score >= 30) return "Best Exterminator in town";
+  if (score >= 20) return "Exterminator in training";
+  return "";
+}
+
 function App() {
   const moleCount = 6;
   const [score, setScore] = useState(0);
@@ -93,6 +101,7 @@ function App() {
       <div className="App-header" style={{ justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
         <h1>Time's Up!</h1>
         <h2>Your Score: {score}</h2>
+        {getTitle(score) && <h3>Title Earned: {getTitle(score)}</h3>}
         <button
           style={{
             fontSize: "2rem",
