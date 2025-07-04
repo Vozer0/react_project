@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import moleImg from "./mole.png";
 import goldenMoleImg from "./golden_mole.png";
+import matthewLeeImg from "./MatthewLee.jpg";
+import brianTanImg from "./BRIAN-TAN.jpg";
+import jasonWanImg from "./Jason_Wan.jpg";
+import jerardAgravanteImg from "./JerardAgravante.jpg";
+import kevinBrownImg from "./Kevin-Brown.jpg";
+import andrewLemusImg from "./Andrew-Lemus.jpg";
 import "./App.css";
 
 // Title function for milestones (do not modify)
@@ -22,6 +28,17 @@ const milestones = [
   { score: 50, title: "EXTERMINATE!" }
 ];
 
+// Bad images array
+const badImages = [
+  { src: matthewLeeImg, alt: "Matthew Lee" },
+  { src: brianTanImg, alt: "Brian Tan" },
+  { src: jasonWanImg, alt: "Jason Wan" },
+  { src: jerardAgravanteImg, alt: "Jerard Agravante" },
+  { src: kevinBrownImg, alt: "Kevin Brown" },
+  { src: andrewLemusImg, alt: "Andrew Lemus" }
+];
+const badMoleCount = badImages.length;
+
 function App() {
   const moleCount = 6;
   const [score, setScore] = useState(0);
@@ -36,6 +53,9 @@ function App() {
   const [goldenMoleHit, setGoldenMoleHit] = useState(false);
   const [goldenMolePosition, setGoldenMolePosition] = useState({ top: 50, left: 50 });
 
+  // Bad items state
+  const [badItems, setBadItems] = useState([]); // array of {top, left, imgIdx, id}
+
   // Game timer
   useEffect(() => {
     if (!gameStarted || gameOver) return;
@@ -43,6 +63,7 @@ function App() {
       setGameOver(true);
       setActiveMoles([]);
       setGoldenMoleVisible(false);
+      setBadItems([]);
       return;
     }
     const timer = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
@@ -74,10 +95,34 @@ function App() {
     return () => clearInterval(interval);
   }, [gameStarted, gameOver]);
 
-  // Golden mole logic: appears once per game, for a short time, at a random interval
+  // Bad items logic
+  useEffect(() => {
+    if (!gameStarted || gameOver) return;
+    const interval = setInterval(() => {
+      const visibleBadCount = Math.floor(Math.random() * badMoleCount) + 1;
+      const usedIndices = [];
+      const badArr = [];
+      for (let i = 0; i < visibleBadCount; i++) {
+        let imgIdx;
+        do {
+          imgIdx = Math.floor(Math.random() * badMoleCount);
+        } while (usedIndices.includes(imgIdx));
+        usedIndices.push(imgIdx);
+        badArr.push({
+          id: i + "-" + Date.now(),
+          imgIdx,
+          top: Math.random() * 80 + 10,
+          left: Math.random() * 80 + 10,
+        });
+      }
+      setBadItems(badArr);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [gameStarted, gameOver]);
+
+  // Golden mole logic: appears once per game, for 2 seconds, at a random interval
   useEffect(() => {
     if (!gameStarted || goldenMoleHit) return;
-    // Golden mole appears at a random time between 5 and 20 seconds
     const appearTime = Math.random() * 15000 + 5000;
     let appearTimer, disappearTimer;
 
@@ -112,14 +157,20 @@ function App() {
     setGoldenMoleHit(true);
   };
 
+  const handleBadItemClick = (id) => {
+    setScore((s) => Math.max(0, s - 2));
+    setBadItems((items) => items.filter((item) => item.id !== id));
+  };
+
   const handleStart = () => {
-  setScore(0);
-  setTimeLeft(30);
-  setGameOver(false);
-  setGameStarted(true);
-  setGoldenMoleVisible(false); // reset golden mole visibility
-  setGoldenMoleHit(false);     // reset golden mole hit state
-};
+    setScore(0);
+    setTimeLeft(30);
+    setGameOver(false);
+    setGameStarted(true);
+    setGoldenMoleVisible(false);
+    setGoldenMoleHit(false);
+    setBadItems([]);
+  };
 
   if (!gameStarted) {
     // COVER PAGE
@@ -216,6 +267,26 @@ function App() {
           <img src={goldenMoleImg} alt="Golden Mole" style={{ width: 100, height: 100 }} />
         </button>
       )}
+      {/* Bad Images */}
+      {badItems.map((item) => (
+        <button
+          key={item.id}
+          style={{
+            position: "absolute",
+            top: `${item.top}%`,
+            left: `${item.left}%`,
+            transform: "translate(-50%, -50%)",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            zIndex: 15,
+          }}
+          onClick={() => handleBadItemClick(item.id)}
+        >
+          <img src={badImages[item.imgIdx].src} alt={badImages[item.imgIdx].alt} style={{ width: 100, height: 100 }} />
+        </button>
+      ))}
       {/* Regular Moles */}
       {Array.from({ length: moleCount }).map((_, idx) => (
         <button
