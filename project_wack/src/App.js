@@ -7,12 +7,13 @@ function App() {
   const [score, setScore] = useState(0);
   const [activeMoles, setActiveMoles] = useState([]);
   const [molePositions, setMolePositions] = useState({});
-  const [gameStarted, setGameStarted] = useState(false); // NEW
-  const visibleMoleCount = 2;
+  const [gameStarted, setGameStarted] = useState(false);
 
   useEffect(() => {
-    if (!gameStarted) return; // Only run game loop if started
+    if (!gameStarted) return;
     const interval = setInterval(() => {
+      // Pick a random number of moles to show (1 to moleCount)
+      const visibleMoleCount = Math.floor(Math.random() * moleCount) + 1;
       const indices = [];
       while (indices.length < visibleMoleCount) {
         const idx = Math.floor(Math.random() * moleCount);
@@ -32,7 +33,7 @@ function App() {
       setMolePositions(newPositions);
     }, 1000);
     return () => clearInterval(interval);
-  }, [gameStarted]); // Depend on gameStarted
+  }, [gameStarted]);
 
   const handleMoleClick = (idx) => {
     if (activeMoles.includes(idx)) {
