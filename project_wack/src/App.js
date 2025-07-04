@@ -6,13 +6,11 @@ function App() {
   const moleCount = 6;
   const [score, setScore] = useState(0);
   const [activeMoles, setActiveMoles] = useState([]);
-
-  // Number of moles to show at once
+  const [molePositions, setMolePositions] = useState({});
   const visibleMoleCount = 2;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // Pick unique random indices for visible moles
       const indices = [];
       while (indices.length < visibleMoleCount) {
         const idx = Math.floor(Math.random() * moleCount);
@@ -20,7 +18,16 @@ function App() {
           indices.push(idx);
         }
       }
+      // Assign random positions for each active mole
+      const newPositions = {};
+      indices.forEach(idx => {
+        newPositions[idx] = {
+          top: Math.random() * 80 + 10,   // 10% to 90% vertically
+          left: Math.random() * 80 + 10,  // 10% to 90% horizontally
+        };
+      });
       setActiveMoles(indices);
+      setMolePositions(newPositions);
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -28,32 +35,33 @@ function App() {
   const handleMoleClick = (idx) => {
     if (activeMoles.includes(idx)) {
       setScore((s) => s + 1);
-      // Remove the clicked mole from active moles
       setActiveMoles((moles) => moles.filter((m) => m !== idx));
     }
   };
 
   return (
-    <div className="App-header" style={{ position: "relative" }}>
+    <div className="App-header" style={{ position: "relative", minHeight: "100vh" }}>
       <div className="score-top-right">Score: {score}</div>
-      <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
-        {Array.from({ length: moleCount }).map((_, idx) => (
-          <button
-            key={idx}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: activeMoles.includes(idx) ? "pointer" : "default",
-              visibility: activeMoles.includes(idx) ? "visible" : "hidden",
-            }}
-            onClick={() => handleMoleClick(idx)}
-            disabled={!activeMoles.includes(idx)}
-          >
-            <img src={moleImg} alt="Mole" style={{ width: 100, height: 100 }} />
-          </button>
-        ))}
-      </div>
+      {Array.from({ length: moleCount }).map((_, idx) => (
+        <button
+          key={idx}
+          style={{
+            position: "absolute",
+            top: `${molePositions[idx]?.top || 50}%`,
+            left: `${molePositions[idx]?.left || 50}%`,
+            transform: "translate(-50%, -50%)",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: activeMoles.includes(idx) ? "pointer" : "default",
+            visibility: activeMoles.includes(idx) ? "visible" : "hidden",
+          }}
+          onClick={() => handleMoleClick(idx)}
+          disabled={!activeMoles.includes(idx)}
+        >
+          <img src={moleImg} alt="Mole" style={{ width: 100, height: 100 }} />
+        </button>
+      ))}
     </div>
   );
 }
