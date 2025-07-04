@@ -3,15 +3,24 @@ import moleImg from "./mole.png";
 import goldenMoleImg from "./golden_mole.png";
 import "./App.css";
 
-// Title function for milestones
+// Title function for milestones (do not modify)
 function getTitle(score) {
   if (score >= 40) return "The Verminator";
   if (score >= 30) return "Best exterminator in town";
-  if (score >= 20) return "Exterminator in training";
+  if (score >= 20) return "You've got a fridge \"magnet\"";
   if (score >= 50) return "EXTERMINATE!";
   if (score >= 0) return "Tree Hugger!";
   return "";
 }
+
+// Milestone array for display (all 5 titles)
+const milestones = [
+  { score: 0, title: "Tree Hugger!" },
+  { score: 20, title: "You've got a fridge \"magnet\"" },
+  { score: 30, title: "Best exterminator in town" },
+  { score: 40, title: "The Verminator" },
+  { score: 50, title: "EXTERMINATE!" }
+];
 
 function App() {
   const moleCount = 6;
@@ -78,10 +87,10 @@ function App() {
         top: Math.random() * 80 + 10,
         left: Math.random() * 80 + 10,
       });
-      // Golden mole disappears after 1 second if not hit
+      // Golden mole disappears after 2 seconds if not hit
       disappearTimer = setTimeout(() => {
         setGoldenMoleVisible(false);
-      }, 1000);
+      }, 2000);
     }, appearTime);
 
     return () => {
@@ -104,13 +113,13 @@ function App() {
   };
 
   const handleStart = () => {
-    setScore(0);
-    setTimeLeft(30);
-    setGameOver(false);
-    setGameStarted(true);
-    setGoldenMoleVisible(false);
-    setGoldenMoleHit(false);
-  };
+  setScore(0);
+  setTimeLeft(30);
+  setGameOver(false);
+  setGameStarted(true);
+  setGoldenMoleVisible(false); // reset golden mole visibility
+  setGoldenMoleHit(false);     // reset golden mole hit state
+};
 
   if (!gameStarted) {
     // COVER PAGE
@@ -143,7 +152,16 @@ function App() {
       <div className="App-header" style={{ justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
         <h1>Time's Up!</h1>
         <h2>Your Score: {score}</h2>
-        {getTitle(score) && <h3>Title Earned: {getTitle(score)}</h3>}
+        <div style={{ marginTop: "2rem" }}>
+          <h3>Milestone Titles:</h3>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {milestones.map(m => (
+              <li key={m.score} style={{ fontSize: "1.2rem", margin: "0.5rem 0" }}>
+                {score >= m.score ? m.title : "???"}
+              </li>
+            ))}
+          </ul>
+        </div>
         <button
           style={{
             fontSize: "2rem",
