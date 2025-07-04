@@ -7,7 +7,9 @@ import "./App.css";
 function getTitle(score) {
   if (score >= 40) return "The Verminator";
   if (score >= 30) return "Best exterminator in town";
-  if (score >= 20) return "You've got a fridge \"magnet\"";
+  if (score >= 20) return "Exterminator in training";
+  if (score >= 50) return "EXTERMINATE!";
+  if (score >= 0) return "Tree Hugger!";
   return "";
 }
 
