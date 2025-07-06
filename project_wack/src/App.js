@@ -8,6 +8,15 @@ import jerardAgravanteImg from "./JerardAgravante.jpg";
 import kevinBrownImg from "./Kevin-Brown.jpg";
 import andrewLemusImg from "./Andrew-Lemus.jpg";
 import "./App.css";
+import missSoundFile from "./near-miss-swing-whoosh-2-233427.mp3";
+import hitSoundFile from "./bonk-sound-effect-36055.mp3";
+
+const missSound = new Audio(missSoundFile)
+const hitSound = new Audio(hitSoundFile);
+const playClickSound = () => {
+  hitSound.currentTime = 0; // rewind if still playing
+  hitSound.play();
+};
 
 // Title function for milestones (do not modify)
 function getTitle(score) {
@@ -145,6 +154,7 @@ function App() {
   }, [gameStarted, goldenMoleHit]);
 
   const handleMoleClick = (idx) => {
+    playClickSound();
     if (activeMoles.includes(idx)) {
       setScore((s) => s + 1);
       setActiveMoles((moles) => moles.filter((m) => m !== idx));
@@ -152,12 +162,14 @@ function App() {
   };
 
   const handleGoldenMoleClick = () => {
+    playClickSound();
     setScore((s) => s + 10);
     setGoldenMoleVisible(false);
     setGoldenMoleHit(true);
   };
 
   const handleBadItemClick = (id) => {
+    playClickSound();
     setScore((s) => Math.max(0, s - 2));
     setBadItems((items) => items.filter((item) => item.id !== id));
   };
@@ -234,8 +246,18 @@ function App() {
   }
 
   // GAME PAGE
+  const handleMissClick = (e) => {
+    const isMole = e.target.tagName === "IMG" && e.target.alt === "Mole";
+    const isGolden = e.target.tagName === "IMG" && e.target.alt === "Golden Mole";
+    const isBad = badImages.some(img => img.alt === e.target.alt);
+  
+    if (!isMole && !isGolden && !isBad) {
+      missSound.play();
+    }
+  };
+  
   return (
-    <div className="App-header" style={{ position: "relative", minHeight: "100vh" }}>
+    <div className="App-header" onClick = {handleMissClick} style={{ position: "relative", minHeight: "100vh" }}>
       <div className="score-top-right">Score: {score}</div>
       <div style={{
         position: "absolute",
