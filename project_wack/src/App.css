@@ -14,19 +14,33 @@
 }
 
 .App-header {
-  background: linear-gradient(135deg, #176429 60%, #1e3a01 100%);
-  /* Example: add a background image (replace URL with your own image if desired) */
+  background-image: url('https://images.unsplash.com/photo-1589496933738-f5c27bc146e3?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
   background-size: cover;
-  background-repeat: no-repeat;
   background-position: center;
+  background-repeat: no-repeat;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
-  box-shadow: 0 0 40px #0008 inset;
+  font-size: calc(10px + 2vmin);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 .App-link {

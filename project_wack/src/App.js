@@ -56,6 +56,11 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30); // 30 seconds
   const [gameOver, setGameOver] = useState(false);
+  const [commentary, setCommentary] = useState("");
+  const [commentaryColor, setCommentaryColor] = useState("yellow");
+  const [commentaryPos, setCommentaryPos] = useState({ top: 0, left: 0, visible: false });
+
+
 
   // Golden mole state
   const [goldenMoleVisible, setGoldenMoleVisible] = useState(false);
@@ -158,6 +163,20 @@ function App() {
     if (activeMoles.includes(idx)) {
       setScore((s) => s + 1);
       setActiveMoles((moles) => moles.filter((m) => m !== idx));
+
+      const hitMessages = [
+        "Nice hit!",
+        "Whacked it!",
+        "Boom!", 
+        "Gotcha!",
+        "Mole down!",
+        "Direct hit!"
+      ];
+      const randomMessage = hitMessages[Math.floor(Math.random() * hitMessages.length)];
+
+      setCommentary(randomMessage);
+      setCommentaryColor("yellow");  
+      setTimeout(() => setCommentary(""), 1000);
     }
   };
 
@@ -168,10 +187,24 @@ function App() {
     setGoldenMoleHit(true);
   };
 
-  const handleBadItemClick = (id) => {
+  const handleBadItemClick = (id, event) => {
     playClickSound();
     setScore((s) => Math.max(0, s - 2));
     setBadItems((items) => items.filter((item) => item.id !== id));
+
+    const rect = event.currentTarget.parentNode.getBoundingClientRect();
+    const top = event.clientY - rect.top;
+    const left = event.clientX - rect.left;
+
+    setCommentary("Oops! Wrong target!");
+    setCommentaryColor("red");  // 👈 make it red
+    setCommentaryPos({ top, left, visible: true });
+
+    setTimeout(() => {
+      setCommentary("");
+      setCommentaryPos((pos) => ({ ...pos, visible: false }));
+    }, 1000);
+
   };
 
   const handleStart = () => {
@@ -268,6 +301,22 @@ function App() {
         color: "white",
         zIndex: 10
       }}>
+      <h2 style={{ 
+        position: "absolute", 
+        top: commentaryPos.top, 
+        left: commentaryPos.left, 
+        transform: "translateX(-50%)", 
+        color: commentaryColor,
+        fontSize: "1.5rem", fontWeight: "bold",
+        pointerEvents: "none",
+        userSelect: "none",
+        transform: "translate(-50%, -100%)",
+        textShadow: "1px 1px 3px black",
+        zIndex: 1000,
+      }}>
+        {commentary}
+      </h2>
+      
         Time: {timeLeft}
       </div>
       {/* Golden Mole */}
@@ -304,7 +353,7 @@ function App() {
             cursor: "pointer",
             zIndex: 15,
           }}
-          onClick={() => handleBadItemClick(item.id)}
+          onClick={(event) => handleBadItemClick(item.id, event)}
         >
           <img src={badImages[item.imgIdx].src} alt={badImages[item.imgIdx].alt} style={{ width: 100, height: 100 }} />
         </button>
